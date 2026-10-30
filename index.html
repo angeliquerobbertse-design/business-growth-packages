@@ -2926,9 +2926,9 @@ async function copyText(s){try{await navigator.clipboard.writeText(s)}catch(e){c
  const t=$("toast");t.textContent="Quote copied";t.classList.add("show");setTimeout(()=>t.classList.remove("show"),1800)}
 $("copy").onclick=()=>copyText(quote());
 const BL=[
- {k:"main",l:()=>"Print · "+S.title,sub:"Total cm",max:540,step:5,chips:[10,20,40,80],unit:"cm"},
- {k:"second",l:()=>S.second?"Print · "+S.second+" (second title)":"Print · second title (none selected)",sub:"Total cm — choose a second title above to use this",max:540,step:5,chips:[0,20,40],unit:"cm"},
- {k:"third",l:()=>S.third?"Print · "+S.third+" (third title)":"Print · third title (none selected)",sub:"Total cm — same term discount as the other titles",max:540,step:5,chips:[0,20,40],unit:"cm"},
+ {k:"main",l:()=>"Print · "+S.title,sub:"Total cm",max:540,step:10,chips:[10,20,40,80],unit:"cm"},
+ {k:"second",l:()=>S.second?"Print · "+S.second+" (second title)":"Print · second title (none selected)",sub:"Total cm — choose a second title above to use this",max:540,step:10,chips:[0,20,40],unit:"cm"},
+ {k:"third",l:()=>S.third?"Print · "+S.third+" (third title)":"Print · third title (none selected)",sub:"Total cm — same term discount as the other titles",max:540,step:10,chips:[0,20,40],unit:"cm"},
  {k:"banner",l:()=>"Banner display",sub:"Impressions",max:400000,step:5000,chips:[25000,50000,100000,150000],unit:""},
  {k:"posts",l:()=>"Organic social posts",sub:"Posts per month",max:24,step:1,chips:[4,8,12],unit:""},
  {k:"articles",l:()=>"Sponsored articles",sub:"Articles per month",max:6,step:1,chips:[0,1,2],unit:""},
@@ -2948,7 +2948,7 @@ $("lines").innerHTML=BL.map(x=>`<div class="ln" data-k="${x.k}"><div class="lh">
  <div class="lq">${x.chips.map(c=>`<button class="chip" data-v="${c}">${x.k==="boost"?R(c):x.k==="banner"?N(c):c+(x.unit==="cm"?" cm":"")}</button>`).join("")}</div></div>`).join("");
 const th=document.querySelector('.ln[data-k="third"]');th.insertAdjacentHTML("afterend",'<div class="psub" id="psub"></div>');
 document.querySelectorAll(".ln").forEach(el=>{const k=el.dataset.k,rg=el.querySelector("input[type=range]"),nm=el.querySelector("input[type=number]");
- const set=v=>{v=Math.max(0,+v||0);B[k]=v;rg.value=v;if(document.activeElement!==nm)nm.value=v;drawB()};
+ const PR=["main","second","third"].includes(k);const set=v=>{v=Math.max(0,+v||0);if(PR)v=Math.min(540,Math.round(v/10)*10);B[k]=v;rg.value=v;if(document.activeElement!==nm)nm.value=v;drawB()};
  rg.oninput=()=>set(rg.value);nm.oninput=()=>set(nm.value);nm.onblur=()=>{nm.value=B[k]};
  el.querySelector(".lq").onclick=e=>{const b=e.target.closest("button");if(b){set(b.dataset.v);nm.value=B[k]}}});
 function syncInputs(){document.querySelectorAll(".ln").forEach(el=>{const k=el.dataset.k;el.querySelector("input[type=range]").value=B[k];el.querySelector("input[type=number]").value=B[k]})}
