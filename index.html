@@ -64,9 +64,20 @@ li.off{opacity:.35}
 .bctl,.bsum{background:linear-gradient(160deg,#17325f,#10264b);border:1px solid var(--line);border-radius:18px;padding:20px}
 .bsum{position:sticky;top:12px}
 .bsel{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px}.bsel .bterm{grid-column:1/-1}
+.bdet{border:1px solid var(--line);border-radius:18px;background:var(--card,#0e2347)}
+.bdet>summary{list-style:none;cursor:pointer}.bdet>summary::-webkit-details-marker{display:none}
+.bsumm{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:22px 26px}
+.bsumm h2{font-size:clamp(22px,3vw,32px);line-height:1.15;margin:8px 0 8px;font-weight:800}.bsumm h2 em{font-family:Cambria,Georgia,serif;font-style:italic;font-weight:400;color:var(--gold)}.bsumm p{color:var(--mut);max-width:720px;margin:0}
+.bopen{display:inline-flex;align-items:center;gap:10px;flex:none;padding:12px 20px;border-radius:99px;background:var(--gold);color:var(--navy);font-weight:700;font-size:14px}
+.bopen i{width:9px;height:9px;border-right:2.5px solid currentColor;border-bottom:2.5px solid currentColor;transform:rotate(45deg) translateY(-2px);transition:transform .2s}
+.bdet[open] .bopen i{transform:rotate(225deg)}.bdet .when-open{display:none}.bdet[open] .when-open{display:inline}.bdet[open] .when-closed{display:none}
+.bdet[open]>summary{border-bottom:1px solid var(--line)}
+.bnote{margin:18px 26px 0;padding:12px 16px;border-left:3px solid var(--gold);background:rgba(255,255,255,.04);border-radius:6px;font-size:13px;color:var(--mut)}
+.bdet>.bgrid{padding:22px 26px 26px}
+@media(max-width:760px){.bsumm{flex-direction:column;align-items:flex-start;padding:18px}.bnote{margin:14px 18px 0}.bdet>.bgrid{padding:18px}}
 .starts{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px;padding-bottom:16px;border-bottom:1px solid var(--line)}
 .starts>span{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);font-weight:700}
-#starts{display:flex;gap:6px;flex-wrap:wrap}.chip{padding:7px 12px;border-radius:99px;border:1px solid var(--line);background:var(--navy);color:#fff;font:600 12px Poppins,sans-serif;cursor:pointer}.chip:hover{border-color:var(--gold);color:var(--gold)}
+#starts{display:flex;gap:6px;flex-wrap:wrap}.chip{padding:7px 12px;border-radius:99px;border:1px solid var(--line);background:var(--navy);color:#fff;font:600 12px Poppins,sans-serif;cursor:pointer}#starts .chip.on{background:var(--gold);border-color:var(--gold);color:var(--navy)}.chip:hover{border-color:var(--gold);color:var(--gold)}
 .ln{padding:16px 0;border-bottom:1px solid var(--line)}.ln:last-child{border:0}
 .lh{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:8px}.lh b{font-size:15px}.lh small{display:block;color:var(--mut);font-size:11px;font-weight:400}
 .lc{text-align:right;font-weight:700;color:var(--gold);white-space:nowrap}.lc s{display:block;color:var(--mut);font-weight:400;font-size:11px}
@@ -121,8 +132,9 @@ li.off{opacity:.35}
  <section class="grid" id="pk"><span id="grid" style="display:contents"></span></section>
 
  <section id="build" class="build">
-  <div class="sechead"><div class="eyebrow">&#9679;&nbsp; Part 2 · Build your own</div><h2>Want a different <em>mix?</em></h2>
-  <p>Start from any package, or from scratch, then change the print size, impressions, posts, articles and boost. The price updates as you move each slider, using the same rates and term discounts as the packages.</p></div>
+  <details id="bdet" class="bdet"><summary class="bsumm"><div><div class="eyebrow">&#9679;&nbsp; Part 2 · Custom quote (separate from the five packages)</div><h2>Want something <em>different?</em> Build your own</h2>
+  <p>The packages above are fixed bundles. Open this to design a custom mix instead: choose your own print size, impressions, posts, articles and boost budget.</p></div><span class="bopen"><span class="when-closed">Open</span><span class="when-open">Close</span><i aria-hidden="true"></i></span></summary>
+  <div class="bnote">A custom quote is not one of the five packages. Use the buttons below only if you want to copy a package&rsquo;s starting amounts, then change them. The price updates as you move each slider, using the same rates and term discounts as the packages.</div>
   <div class="bgrid">
    <div class="bctl">
     <div class="bsel">
@@ -131,7 +143,7 @@ li.off{opacity:.35}
      <div><label for="bthird">Third print title</label><select id="bthird"></select></div>
      <div class="bterm"><label>Term</label><div class="seg" id="bterm"></div></div>
     </div>
-    <div class="starts"><span>Start from</span><div id="starts"></div></div>
+    <div class="starts"><span>Copy a package&rsquo;s amounts</span><div id="starts"></div></div>
     <div id="lines"></div>
    </div>
    <aside class="bsum" id="bsum"><div id="bsumin"></div>
@@ -150,6 +162,7 @@ li.off{opacity:.35}
       <button class="lnk" id="qtxt">Copy the quote as plain text instead</button></details>
     </div></aside>
   </div>
+  </details>
  </section>
 <section class="share" id="share">
   <div><div class="eyebrow">&#9679;&nbsp; Share with clients</div><h2>Let clients scan and explore</h2>
@@ -160,6 +173,8 @@ li.off{opacity:.35}
  </section>
  <div class="note"><b>Notes.</b> All prices are per month, exclude VAT and are rounded to the nearest rand. Term discount applies to print, banner, social and sponsored content; boost spend is passed through at cost. SPARK is digital only and priced the same on every title. Rate-card value is calculated at standard rates before the term discount. Subject to availability.<br>Powered by VOLT Africa, exclusive sales partner of The Mercury, Post, Daily News, Isolezwe, Independent on Saturday and Sunday Tribune.</div>
 </main><div class="toast" id="toast"></div>
+<script>(function(){var l=document.getElementById("lines");if(l){["input","click"].forEach(function(t){l.addEventListener(t,function(){document.querySelectorAll("#starts .chip.on").forEach(function(c){c.classList.remove("on")})})})}})();</script>
+<script>(function(){var d=document.getElementById("bdet");function o(){if(d)d.open=true}document.querySelectorAll('a[href="#build"]').forEach(function(a){a.addEventListener("click",function(){o();setTimeout(function(){d.scrollIntoView({behavior:"smooth",block:"start"})},30)})});if(location.hash==="#build")o();window.addEventListener("hashchange",function(){if(location.hash==="#build")o()})})();</script>
 <script>/** @license
  *
  * jsPDF - PDF Document creation from JavaScript
@@ -2934,14 +2949,14 @@ const BL=[
  {k:"articles",l:()=>"Sponsored articles",sub:"Articles per month",max:6,step:1,chips:[0,1,2],unit:""},
  {k:"boost",l:()=>"Social boosting",sub:"Budget incl. 30% management fee",max:10000,step:100,chips:[500,1000,2000,3000],unit:"R"}
 ];
-let B={main:40,second:0,third:0,banner:50000,posts:4,articles:1,boost:500};
+let B={main:0,second:0,third:0,banner:0,posts:0,articles:0,boost:0};
 const fmtq=(k,v)=>k==="boost"?R(v):k==="banner"?N(v)+" imp.":(k==="main"||k==="second"||k==="third")?v+" cm":v;
 $("btitle").innerHTML=$("title").innerHTML;$("bsecond").innerHTML=$("second").innerHTML;$("bthird").innerHTML='<option value="">No third title</option>'+titles.map(opts).join("");$("bthird").onchange=e=>{S.third=e.target.value;draw()};
 $("btitle").onchange=e=>{S.title=e.target.value;draw()};$("bsecond").onchange=e=>{S.second=e.target.value;draw()};
 $("bterm").innerHTML=$("term").innerHTML;
 $("bterm").onclick=e=>{const b=e.target.closest("button");if(b){S.term=+b.dataset.t;draw()}};
-$("starts").innerHTML=Object.keys(PKG).map(n=>`<button class="chip" data-p="${n}">${n}</button>`).join("")+'<button class="chip" data-p="">Blank</button>';
-$("starts").onclick=e=>{const b=e.target.closest("button");if(!b)return;const p=PKG[b.dataset.p];
+$("starts").innerHTML=Object.keys(PKG).map(n=>`<button class="chip" data-p="${n}">${n}</button>`).join("")+'<button class="chip on" data-p="">Blank</button>';
+$("starts").onclick=e=>{const b=e.target.closest("button");if(!b)return;document.querySelectorAll("#starts .chip").forEach(c=>c.classList.toggle("on",c===b));const p=PKG[b.dataset.p];
  B=p?{main:p.main,second:p.second,third:0,banner:p.banner,posts:p.posts,articles:p.articles,boost:p.boost}:{main:0,second:0,third:0,banner:0,posts:0,articles:0,boost:0};syncInputs();drawB()};
 $("lines").innerHTML=BL.map(x=>`<div class="ln" data-k="${x.k}"><div class="lh"><div><b class="lt"></b><small>${x.sub}</small></div><div class="lc"></div></div>
  <div class="lr"><input type="range" min="0" max="${x.max}" step="${x.step}"><input type="number" min="0" step="${x.step}"></div>
