@@ -2874,6 +2874,8 @@ var qrcode = function() {
 <script>
 // RATES: R per column cm (KZN_BGA_rates.xlsx). "The Mercury & Daily News" print titles have merged: R100 per column cm is the BGA (50% off) rate in KZN_BGA_rates_1.xlsx, so the card rate is R200; term discounts then give R100/R90/R85/R80 per cm at 3/6/9/12 months.
 const RATE={ "The Mercury & Daily News":200,"Independent on Saturday":135.8,"Sunday Tribune":92.02,"Isolezwe":97.4,"Post":75.97 };
+// Max print cm per title (supplied 17 Nov 2026). Combined Mercury & Daily News capped at 540 (not the sum).
+const MAXCM={"The Mercury & Daily News":540,"Independent on Saturday":540,"Sunday Tribune":540,"Post":540,"Isolezwe":273};
 const DISC={3:0.5,6:0.55,9:0.575,12:0.6};
 const RC={banner:0.065,post:1500,article:6500};
 const PKG={
@@ -2963,11 +2965,13 @@ $("lines").innerHTML=BL.map(x=>`<div class="ln" data-k="${x.k}"><div class="lh">
  <div class="lq">${x.chips.map(c=>`<button class="chip" data-v="${c}">${x.k==="boost"?R(c):x.k==="banner"?N(c):c+(x.unit==="cm"?" cm":"")}</button>`).join("")}</div></div>`).join("");
 const th=document.querySelector('.ln[data-k="third"]');th.insertAdjacentHTML("afterend",'<div class="psub" id="psub"></div>');
 document.querySelectorAll(".ln").forEach(el=>{const k=el.dataset.k,rg=el.querySelector("input[type=range]"),nm=el.querySelector("input[type=number]");
- const PR=["main","second","third"].includes(k);const set=v=>{v=Math.max(0,+v||0);if(PR)v=Math.min(540,Math.round(v/10)*10);B[k]=v;rg.value=v;if(document.activeElement!==nm)nm.value=v;drawB()};
+ const PR=["main","second","third"].includes(k);const set=v=>{v=Math.max(0,+v||0);if(PR)v=Math.min(maxFor(k),Math.round(v/10)*10);B[k]=v;rg.value=v;if(document.activeElement!==nm)nm.value=v;drawB()};
  rg.oninput=()=>set(rg.value);nm.oninput=()=>set(nm.value);nm.onblur=()=>{nm.value=B[k]};
  el.querySelector(".lq").onclick=e=>{const b=e.target.closest("button");if(b){set(b.dataset.v);nm.value=B[k]}}});
+function maxFor(k){const t=k==="main"?S.title:S[k];return (t&&MAXCM[t])||540}
 function syncInputs(){document.querySelectorAll(".ln").forEach(el=>{const k=el.dataset.k;el.querySelector("input[type=range]").value=B[k];el.querySelector("input[type=number]").value=B[k]})}
 function drawB(){
+ ["main","second","third"].forEach(k=>{const m=maxFor(k);if(B[k]>m)B[k]=m;const el=document.querySelector('.ln[data-k="'+k+'"]');if(el){el.querySelector("input[type=range]").max=m;el.querySelector("input[type=number]").max=m;el.querySelector("input[type=range]").value=B[k];if(document.activeElement!==el.querySelector("input[type=number]"))el.querySelector("input[type=number]").value=B[k];const t=k==="main"?S.title:S[k];const sm=el.querySelector("small");if(sm)sm.textContent=(k==="main"?"Total cm":k==="second"?"Total cm — choose a second title above to use this":"Total cm — same term discount as the other titles")+(t?" · max "+maxFor(k)+" cm":"")}});
  $("btitle").value=S.title;$("bsecond").value=S.second;$("bthird").value=S.third;
  document.querySelectorAll("#bterm button").forEach(b=>b.classList.toggle("on",+b.dataset.t===S.term));
  const E={...B,second:S.second?B.second:0,third:S.third?B.third:0};const c=calcCustom(E,S.title,S.second,S.term,S.third);
@@ -3059,14 +3063,18 @@ function buildPdf(){
  doc.text("www.volt.africa",12,291);doc.text("sales@volt.africa",W/2,291,{align:"center"});
  doc.text(doc.splitTextToSize((val("qrep")||"Your Volt Africa rep")+(val("qcontact")?"  ·  "+val("qcontact"):""),70)[0],198,291,{align:"right"});
  return doc}
+const TRACK_URL="";/* paste the Google Apps Script web-app URL here to log quotes to the tracking sheet */
+function track(action){try{if(!TRACK_URL||!LAST)return;const V=vatOf(LAST.c.pay,LAST.c.total);
+ const items=qlines().filter(l=>!l.sub).map(l=>l.n+": "+l.q).join("; ");
+ fetch(TRACK_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({ref:qdate().ref,action:action,company:val("qclient"),rep:val("qrep"),contact:val("qcontact"),main:S.title,second:S.second||"",third:S.third||"",term:S.term,items:items,monthlyEx:V.ex,vat:V.v,monthlyInc:V.inc,totalInc:V.tinc})}).catch(()=>{})}catch(e){}}
 function send(kind){
  if(!LAST||!LAST.c.pay||needCo())return;const doc=buildPdf(),fn=qfile(),blob=doc.output("blob"),file=new File([blob],fn,{type:"application/pdf"});
  const subj="Your Business Growth, Amplified quote"+(val("qclient")?" – "+val("qclient"):"");
  if(navigator.canShare&&navigator.canShare({files:[file]})){
-  navigator.share({files:[file],title:subj,text:quoteText()}).then(()=>stat("Shared. Thank you."),e=>{if(e&&e.name!=="AbortError")stat("Sharing was blocked. Use Download instead.")});return}
- doc.save(fn);
+  navigator.share({files:[file],title:subj,text:quoteText()}).then(()=>{track("Shared (WhatsApp)");stat("Shared. Thank you.")},e=>{if(e&&e.name!=="AbortError")stat("Sharing was blocked. Use Download instead.")});return}
+ doc.save(fn);track("WhatsApp");
  {window.open("https://wa.me/?text="+encodeURIComponent(quoteText()+"\n\n(Full quote attached as PDF)"),"_blank");stat("PDF downloaded and WhatsApp opened. Choose the client's chat, attach the PDF ("+fn+") and send.")}}
-$("qdl").onclick=()=>{if(!LAST||!LAST.c.pay||needCo())return;buildPdf().save(qfile());stat("Quote downloaded. Find it in your Downloads folder.")};
+$("qdl").onclick=()=>{if(!LAST||!LAST.c.pay||needCo())return;buildPdf().save(qfile());track("Downloaded");stat("Quote downloaded. Find it in your Downloads folder.")};
 $("qwa").onclick=()=>send("wa");$("qtxt").onclick=()=>{if(!needCo())copyText(quoteText())};
 
 const DEFAULT_URL="https://angeliquerobbertse-design.github.io/business-growth-packages/";
